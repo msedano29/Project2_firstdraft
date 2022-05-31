@@ -1,0 +1,96 @@
+---
+title: "Project 2C"
+output: html_notebook
+---
+
+Melissa Sedano
+BIMM 143
+
+## Introduction
+
+Scientific Question: Do the amino acid sequences and structure between the peroxisome proliferator-activated receptor alpha in humans and mice share enough similarity to consider the PPAR alpha mice model an accurate model of the PPAR alpha receptor in humans?
+
+Background:
+
+Peroxisome proliferator-activated receptor alpha (PPAR alpha) is a transcription factor belonging to a family of nuclear receptors. This family also includes PPAR beta and PPAR gamma. PPARs are mainly activated through ligand binding, which changes their conformation and allows them to form a heterodimer with the retinoid X receptor (RXR) bind to DNA, and activate the transcription of target genes (Pap et al, 2016)  Structurally, PPARs consist of a DNA binding domain, ligand binding domain, and transactivation domain (Pap et al, 2016). PPAR alpha plays an important role in lipid metabolism and its expression is highest in organs such as the heart, liver and kidneys (Yang et al, 2008).
+Most of what is now known about PPAR alpha has been obtained from mice studies, due to the genetic and physiological similarities shared between humans and mice. However, despite these similarities several studies have found similarities as well as differences between PPAR alpha in humans and PPAR alpha in mice. For instance, it has been found that while human PPAR alpha and mouse PPAR alpha both have a high binding affinity for the ligand long-chain fatty acyl-CoA, differences exist in the binding affinity of long-chain fatty acid (LFCA) (Oswal et al, 2013). This suggests that there may be differences in the PPAR alpha protein sequences and that these differences could affect the function of the receptor across species. Therefore, it is important to compare the sequence and structure of PPAR alpha between human and mice with special attention to the ligand binding domain.
+
+
+Hypothesis: If the peroxisome proliferator-activated receptor alpha is mainly activated through the ligand binding domain, then there should be at least 85% similarity between the ligand binding domain when comparing the protein sequences and structures of PPAR alpha between human and mouse.
+
+Description of work done and how the data was downloaded for the project:
+
+To compare the protein sequences of human PPAR alpha and mouse PPAR alpha, we will perform a global pairwise sequence alignment. The protein sequences used in the alignment for each species will be obtained from the database Uniprot and saved as FASTA files. To visually analyze the pairwise sequence alignment, the bioinformatics method heatmap will be used. In the second part of this analysis, homology modeling will be performed to create a model of the mouse PPAR alpha from its protein sequence and a known human PPAR alpha structure of the ligand binding domain in complex with an agonist. The human PPAR alpha crystal structure will be obtained from the Protein Data Bank (PDB). The homology model will be produced externally using the website Swiss-Model. This will allow a comparison of the homology model with the human PPAR alpha crystal structure using structural bioinformatics software such as PyMol to make 3D measurements between the ligand binding domain. The results of this analysis will be embedded into the notebook in the form of images and video.
+
+## Loading in packages
+
+Here I will describe the necessary packages before loading them in using the library() function:
+
+1. BiocManager: BiocManager is a package from the Bioconductor software project. Its purpose is to allow for the installation and management of Bioconductor packages. Packages installed from Bioconductor may be used to analyze genomic data. To learn more about BiocManager see: https://www.bioconductor.org/install/
+
+2. Biostrings: Biostrings is a Bioconductor package which contains functions that allows users to read in biological sequences such as DNA, RNA, and proteins. Functions within this package also allow users to manipulate the sequences as well as perform sequence alignments using the pairwiseAlignment() function for example. To learn more about Biostrings see: https://bioconductor.org/packages/release/bioc/html/Biostrings.html
+
+3. seqinr: Seqinr is a package containing functions that allows users to obtain DNA and protein sequences from databases as well as analyze the sequences. The c2s() function within the package for example, can be used to character vectors into a string. To learn more about seqinr see: https://cran.r-project.org/web/packages/seqinr/seqinr.pdf
+
+
+```{r}
+# Load necessary packages
+
+library(BiocManager)
+library(Biostrings)
+library(seqinr)
+```
+
+## Performing Bioinformatics Analyis
+
+In the code below, we read in the human PPAR alpha and mouse PPAR alpha protein sequences saved as FASTA files. A FASTA file is a text file containing sequence information. The first line in the file starts with a greater-than sign > and contains description information. The rest of the text in the file contains the sequence. The human PPAR alpha sequence was obtained from Uniprot with the accession number Q07869. The mouse PPAR alpha sequence was also obtained from Uniprot with th eaccession number P23204. Here we use the bioinformatics method pairwise sequence alignment which is used to compare two biological sequences such as proteins in this case, to identify similar regions. 
+
+```{r}
+# Read in Human PPAR alpha and Mouse PPAR alpha fasta file protein sequences and assign to variables HumanPPARalpha and MousePPARalpha
+
+HumanPPARalpha <- read.fasta(file = "HumanPPARalpha.fasta")
+MousePPARalpha <- read.fasta(file = "MousePPARalpha.fasta")
+
+# Access each sequence as a list element and assign to variables HumanPPARalpha_seq and MousePPARalpha_seq
+
+HumanPPARalpha_seq <- HumanPPARalpha[[1]]
+MousePPARalpha_seq <- MousePPARalpha[[1]]
+
+HumanPPARalpha_seq
+MousePPARalpha_seq
+
+# Convert sequences to strings to prepare for pairwiseAlignment function
+
+HumanPPARalpha_seqstring <- c2s(HumanPPARalpha_seq)
+MousePPARalpha_seqstring <- c2s(MousePPARalpha_seq)
+
+# Make sure sequences are in upper case letters
+
+HumanPPARalpha_seqstring <- toupper(HumanPPARalpha_seqstring)
+MousePPARalpha_seqstring <- toupper(MousePPARalpha_seqstring)
+
+# Print out content of sequences
+
+HumanPPARalpha_seqstring
+MousePPARalpha_seqstring
+
+# Load in scoring matrix BLOSUM50 from Biostrings package for alignment
+
+data(BLOSUM50)
+
+# Perform optimal Global pairwise sequence alignment
+
+globalAlign <- pairwiseAlignment(HumanPPARalpha_seqstring, MousePPARalpha_seqstring, substitutionMatrix = BLOSUM50, gapOpening = -2, gapExtension = -8, scoreOnly = FALSE)
+
+globalAlign
+
+```
+
+
+Homology modeling was performed using SwissProt to create a homology model using the mouse PPAR alpha sequence since a crystal structure of mouse PPAR alpha is not available. The mouse PPAR alpha  "target" sequence was obtained from Uniprot with the accession number P23204. A known human PPAR alpha crystal structure of the ligand binding domain was obtained from the Protein Data Bank with the accession number 2ZNN and was used as the template.
+
+The resulting model and results can be accessed here:
+
+https://swissmodel.expasy.org/interactive/UKJYaX/models/
+
+(Model results will be embedded into notebook and analyzed in final draft of project)
